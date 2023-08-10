@@ -1,0 +1,107 @@
+version: "3"
+services:
+  redis:
+    image: redis:alpine
+    restart: unless-stopped
+    env_file:
+      - app.prod.env
+    ports:
+      - 6379:6379
+    volumes:
+      - ./data/redis_data:/data
+    networks:
+      - app-tier
+
+  postgres:
+    #15 version of postgres is used because of the issue with the latest version
+    image: postgres:15
+    restart: unless-stopped
+    ports:
+      - 5432:5432
+    volumes:
+      - ./data/postgres_data:/var/lib/postgresql/data
+    env_file:
+      - database.env
+    networks:
+      - app-tier
+
+  server:
+    build:
+      context: .
+      dockerfile: ./cmd/Dockerfile
+    restart: unless-stopped
+    ports:
+      - 8000:8000
+      - 8080:8080
+    env_file:
+      - app.prod.env
+    volumes:
+      - ./data/server_data/cert:/cert
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - app-tier
+
+  workers:
+    build:
+      context: .
+      dockerfile: ./worker/Dockerfile
+    restart: unless-stopped
+    env_file:
+      - app.prod.env
+    ports:
+      - 8070:8070
+    depends_on:
+      - redis
+    volumes:
+      - ./data/workers_data/logs:/logs
+    networks:
+      - app-tier
+
+  bot:
+    build:
+      context: .
+      dockerfile: ./bot/Dockerfile
+    restart: unless-stopped
+    env_file:
+      - app.prod.env
+    ports:
+      - 8070:8070
+    depends_on:
+      - redis
+      - postgres
+      - workers
+    # volumes:
+    #   - ./data/workers_data/logs:/logs
+    networks:
+      - app-tier
+
+
+  frontend-client:
+    build: path/to/your/Dockerfile
+    ports:
+      - 3000:3000
+
+  frontend-admin:
+    build: path/to/your/Dockerfile
+    ports:
+      - 4000:4000
+
+  nginx:
+    image: nginx:alpine
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - 80:80
+    depends_on:
+      - frontend-client
+      - frontend-admin
+    networks:
+      - app-tier
+
+networks:
+  app-tier:
+    driver: bridge
+
+

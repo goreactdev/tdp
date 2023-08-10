@@ -1,0 +1,11 @@
+{{define "subject"}}Runtime error for {{.BaseURL}}{{end}}
+
+{{define "plainBody"}}
+Time: {{.Timestamp}}
+
+Error: {{.Error}}
+d
+Stack trace: 
+
+{{.Trace}}
+{{end}}

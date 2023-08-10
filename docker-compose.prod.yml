@@ -1,0 +1,103 @@
+version: "3"
+services:
+  redis:
+    image: redis:alpine
+    restart: unless-stopped
+    command:
+    - /bin/sh
+    - -c
+    - redis-server --requirepass "$${REDIS_PASSWORD:?REDIS_PASSWORD variable is not set}"
+    ports:
+      - 6379:6379
+    volumes:
+      - ./data/redis_data:/data
+    env_file:
+      - app.prod.env
+    networks:
+      - app-tier
+
+  postgres:
+    image: postgres:15
+    restart: unless-stopped
+    ports:
+      - 5432:5432
+    volumes:
+      - ./data/postgres_data:/var/lib/postgresql/data
+    env_file:
+      - database.env
+    networks:
+      - app-tier
+
+  server:
+    image: mortensonasy/tdp-server:latest
+    restart: unless-stopped
+    ports:
+      - 8000:80
+      - 8080:8080
+    env_file:
+      - app.prod.env
+    volumes:
+      - ./data/server_data/cert:/cert
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - app-tier
+
+
+  workers:
+    image: mortensonasy/tdp-workers:latest
+    restart: unless-stopped
+    env_file:
+      - app.prod.env
+    ports:
+      - 8070:8070
+    depends_on:
+      - redis
+    volumes:
+      - ./data/workers_data/logs:/logs
+    networks:
+      - app-tier
+
+  bot:
+    image: mortensonasy/tdp-bot:latest
+    restart: unless-stopped
+    env_file:
+      - app.prod.env
+    depends_on:
+      - postgres
+      - redis
+      - workers
+    networks:
+      - app-tier
+
+  frontend-client:
+    image: mortensonasy/tdp-frontend:latest
+    ports:
+      - 3000:80
+    volumes:
+      - ./default.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - app-tier
+
+  frontend-admin:
+    image: mortensonasy/tdp-admin:latest
+    ports:
+      - 4173:4173
+    volumes:
+      - ./default.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - app-tier
+
+  nginx:
+    image: nginx
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - 80:80
+    networks:
+      - app-tier
+
+networks:
+  app-tier:
+    driver: bridge

@@ -1,0 +1,68 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+/* For WebKit browsers like Chrome, Safari, and newer versions of Opera */
+::-webkit-scrollbar {
+  width: 12px; /* Adjust this value to set the desired width of the scrollbar */
+}
+
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1; /* Adjust this value to set the desired background color of the scrollbar track */
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888; /* Adjust this value to set the desired background color of the scrollbar thumb */
+}
+
+/* For Firefox */
+html {
+  scrollbar-width: thin; /* Adjust this value to set the desired width of the scrollbar */
+  scrollbar-color: #888 #f1f1f1; /* Adjust these values to set the desired colors of the scrollbar */
+}
+
+/* For Internet Explorer and Edge */
+html {
+  -ms-overflow-style: scrollbar; /* This will enable the custom scrollbar style for IE and Edge */
+}
+
+.go4121929406, .go1539301232 {
+  box-shadow: none !important;
+  padding: 12px 16px 12px 12px !important;
+  height: 45px !important;
+}
+
+tc-root * {
+  font-family: 'Inter', sans-serif !important;
+}
+
+textarea {
+  font-family: 'Inter', sans-serif !important;
+  outline:none;
+}
+
+input {
+  border:none;
+  background-image:none;
+  background-color:white;
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+
+}
+
+
+

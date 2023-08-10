@@ -1,0 +1,4 @@
+DROP TABLE IF EXISTS rewards;
+
+DROP TABLE IF EXISTS tg_messages;
+
